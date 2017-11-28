@@ -3,6 +3,7 @@ const fs = require(`fs-extra`)
 
 const normalize = require(`./normalize`)
 const fetchData = require(`./fetch`)
+const eventBus = require(`./event-bus`)
 
 const conflictFieldPrefix = `contentful`
 
@@ -22,7 +23,7 @@ exports.setFieldsOnGraphQLNodeType = require(`./extend-node-type`).extendNodeTyp
  * or the fallback field or the default field.
  */
 
-exports.sourceNodes = async (
+const sourceNodes = async (
   { boundActionCreators, getNodes, hasNodeChanged, store },
   { spaceId, accessToken, host }
 ) => {
@@ -32,6 +33,13 @@ exports.sourceNodes = async (
     touchNode,
     setPluginStatus,
   } = boundActionCreators
+
+  setTimeout(() => {
+    sourceNodes(
+      { boundActionCreators, getNodes, hasNodeChanged, store },
+      { spaceId, accessToken, host }
+    )
+  }, 10000)
 
   host = host || `cdn.contentful.com`
   // Get sync token if it exists.
@@ -167,6 +175,8 @@ exports.sourceNodes = async (
 
   return
 }
+
+exports.sourceNodes = sourceNodes
 
 // Check if there are any ContentfulAsset nodes and if gatsby-image is installed. If so,
 // add fragments for ContentfulAsset and gatsby-image. The fragment will cause an error
